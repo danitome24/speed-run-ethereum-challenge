@@ -10,11 +10,14 @@ contract Vendor is Ownable {
     ////
     error Vendor__CannotBuyZeroTokens();
     error Vendor__WithdrawFailed();
+    error Vendor__EthPaybackFailed();
+    error Vendor__CannotSellMoreThanHolds();
 
     ////
     // Event
     ////
     event BuyTokens(address buyer, uint256 amountOfETH, uint256 amountOfTokens);
+    event SellTokens(address seller, uint256 amountOfTokens, uint256 amountOfEth);
 
     ////
     // State Variables
@@ -46,4 +49,17 @@ contract Vendor is Ownable {
     }
 
     // ToDo: create a sellTokens(uint256 _amount) function:
+    function sellTokens(uint256 _amount) public {
+        if (yourToken.balanceOf(msg.sender) < _amount) {
+            revert Vendor__CannotSellMoreThanHolds();
+        }
+
+        yourToken.transferFrom(msg.sender, address(this), _amount);
+        uint256 amountEthToReturn = _amount / tokensPerEth;
+        (bool success,) = payable(msg.sender).call{value: amountEthToReturn}("");
+        if (!success) {
+            revert Vendor__EthPaybackFailed();
+        }
+        emit SellTokens(msg.sender, _amount, amountEthToReturn);
+    }
 }

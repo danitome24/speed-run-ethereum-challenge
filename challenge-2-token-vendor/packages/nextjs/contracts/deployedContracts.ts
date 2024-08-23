@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     Vendor: {
-      address: "0xFD471836031dc5108809D173A067e8486B9047A3",
+      address: "0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44",
       abi: [
         {
           inputs: [
@@ -23,6 +23,16 @@ const deployedContracts = {
         {
           inputs: [],
           name: "Vendor__CannotBuyZeroTokens",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "Vendor__CannotSellMoreThanHolds",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "Vendor__EthPaybackFailed",
           type: "error",
         },
         {
@@ -75,6 +85,31 @@ const deployedContracts = {
           type: "event",
         },
         {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "seller",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "amountOfTokens",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "amountOfEth",
+              type: "uint256",
+            },
+          ],
+          name: "SellTokens",
+          type: "event",
+        },
+        {
           inputs: [],
           name: "buyTokens",
           outputs: [],
@@ -97,6 +132,19 @@ const deployedContracts = {
         {
           inputs: [],
           name: "renounceOwnership",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+          ],
+          name: "sellTokens",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -155,7 +203,7 @@ const deployedContracts = {
       },
     },
     YourToken: {
-      address: "0xc351628EB244ec633d5f21fBD6621e1a683B1181",
+      address: "0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1",
       abi: [
         {
           inputs: [],
