@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     Balloons: {
-      address: "0xf5059a5D33d5853360D16C683c16e67980206f36",
+      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
       abi: [
         {
           inputs: [],
@@ -300,7 +300,7 @@ const deployedContracts = {
       },
     },
     DEX: {
-      address: "0x95401dc811bb5740090279Ba06cfA8fcF6113778",
+      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
       abi: [
         {
           inputs: [
@@ -320,7 +320,27 @@ const deployedContracts = {
         },
         {
           inputs: [],
+          name: "DEX__EthTransferFailed",
+          type: "error",
+        },
+        {
+          inputs: [],
           name: "DEX__NotEnoughBalance",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DEX__NotEnoughEthSent",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DEX__NotEnoughTokenSent",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DEX__TokenTransferFailed",
           type: "error",
         },
         {

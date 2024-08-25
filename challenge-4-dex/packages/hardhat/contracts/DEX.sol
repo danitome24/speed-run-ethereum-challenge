@@ -15,6 +15,10 @@ contract DEX {
     /* ========== ERRORS ========== */
     error DEX__AlreadyHasLiquidity();
     error DEX__NotEnoughBalance();
+    error DEX__NotEnoughEthSent();
+    error DEX__NotEnoughTokenSent();
+    error DEX__TokenTransferFailed();
+    error DEX__EthTransferFailed();
 
     /* ========== GLOBAL VARIABLES ========== */
     uint256 public constant BASE_FEE = 1000;
@@ -102,12 +106,43 @@ contract DEX {
     /**
      * @notice sends Ether to DEX in exchange for $BAL
      */
-    function ethToToken() public payable returns (uint256 tokenOutput) {}
+    function ethToToken() public payable returns (uint256 tokenOutput) {
+        if (msg.value == 0) {
+            revert DEX__NotEnoughEthSent();
+        }
+        uint256 ethReserves = address(this).balance - msg.value; // xReserves.
+        uint256 balReserves = token.balanceOf(address(this)); // yReserves.
+
+        tokenOutput = price(msg.value, ethReserves, balReserves);
+        bool success = token.transfer(msg.sender, tokenOutput);
+        if (!success) {
+            revert DEX__TokenTransferFailed();
+        }
+        emit EthToTokenSwap(msg.sender, tokenOutput, msg.value);
+    }
 
     /**
      * @notice sends $BAL tokens to DEX in exchange for Ether
      */
-    function tokenToEth(uint256 tokenInput) public returns (uint256 ethOutput) {}
+    function tokenToEth(uint256 tokenInput) public returns (uint256 ethOutput) {
+        if (tokenInput == 0) {
+            revert DEX__NotEnoughTokenSent();
+        }
+        uint256 ethReserves = address(this).balance; // xReserves.
+        uint256 balReserves = token.balanceOf(address(this)); // yReserves.
+
+        bool isTransferOk = token.transferFrom(msg.sender, address(this), tokenInput);
+        if (!isTransferOk) {
+            revert DEX__TokenTransferFailed();
+        }
+
+        ethOutput = price(tokenInput, ethReserves, balReserves);
+        (bool success,) = payable(msg.sender).call{value: ethOutput}("");
+        if (!success) {
+            revert DEX__EthTransferFailed();
+        }
+        emit TokenToEthSwap(msg.sender, ethOutput, tokenInput);
+    }
 
     /**
      * @notice allows deposits of $BAL and $ETH to liquidity pool
