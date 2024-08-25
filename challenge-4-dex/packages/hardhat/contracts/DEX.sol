@@ -17,6 +17,8 @@ contract DEX {
     error DEX__NotEnoughBalance();
 
     /* ========== GLOBAL VARIABLES ========== */
+    uint256 public constant BASE_FEE = 1000;
+    uint256 public constant FEE = 997;
 
     IERC20 token; //instantiates the imported contract
     uint256 public totalLiquidity; // Amount of ETH.
@@ -79,7 +81,13 @@ contract DEX {
      * @notice returns yOutput, or yDelta for xInput (or xDelta)
      * @dev Follow along with the [original tutorial](https://medium.com/@austin_48503/%EF%B8%8F-minimum-viable-exchange-d84f30bd0c90) Price section for an understanding of the DEX's pricing model and for a price function to add to your contract. You may need to update the Solidity syntax (e.g. use + instead of .add, * instead of .mul, etc). Deploy when you are done.
      */
-    function price(uint256 xInput, uint256 xReserves, uint256 yReserves) public pure returns (uint256 yOutput) {}
+    function price(uint256 xInput, uint256 xReserves, uint256 yReserves) public pure returns (uint256 yOutput) {
+        uint256 xInputWithFee = xInput * FEE;
+        uint256 numerator = xInputWithFee * yReserves;
+        uint256 denominator = xReserves * BASE_FEE + xInputWithFee;
+
+        return (numerator / denominator);
+    }
 
     /**
      * @notice returns liquidity for a user.
