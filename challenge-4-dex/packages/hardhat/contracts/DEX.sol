@@ -19,14 +19,15 @@ contract DEX {
     error DEX__NotEnoughTokenSent();
     error DEX__TokenTransferFailed();
     error DEX__EthTransferFailed();
+    error DEX__NotEnoughTokens();
 
     /* ========== GLOBAL VARIABLES ========== */
     uint256 public constant BASE_FEE = 1000;
     uint256 public constant FEE = 997;
 
     IERC20 token; //instantiates the imported contract
-    uint256 public totalLiquidity; // Amount of ETH.
-    mapping(address => uint256) public liquidity; // user => ETH provided
+    uint256 public totalLiquidity; // Amount of ETH. (LPT)
+    mapping(address => uint256) public liquidity; // user => ETH provided (LPT)
 
     /* ========== EVENTS ========== */
 
@@ -131,12 +132,13 @@ contract DEX {
         uint256 ethReserves = address(this).balance; // xReserves.
         uint256 balReserves = token.balanceOf(address(this)); // yReserves.
 
+        ethOutput = price(tokenInput, balReserves, ethReserves);
+
         bool isTransferOk = token.transferFrom(msg.sender, address(this), tokenInput);
         if (!isTransferOk) {
             revert DEX__TokenTransferFailed();
         }
 
-        ethOutput = price(tokenInput, ethReserves, balReserves);
         (bool success,) = payable(msg.sender).call{value: ethOutput}("");
         if (!success) {
             revert DEX__EthTransferFailed();
@@ -150,11 +152,48 @@ contract DEX {
      * NOTE: user has to make sure to give DEX approval to spend their tokens on their behalf by calling approve function prior to this function call.
      * NOTE: Equal parts of both assets will be removed from the user's wallet with respect to the price outlined by the AMM.
      */
-    function deposit() public payable returns (uint256 tokensDeposited) {}
+    function deposit() public payable returns (uint256 tokensDeposited) {
+        if (msg.value == 0) {
+            revert DEX__NotEnoughEthSent();
+        }
+        uint256 ethReserves = address(this).balance - msg.value;
+        uint256 balReserves = token.balanceOf(address(this));
 
+        uint256 tokenDeposit = (msg.value * balReserves / ethReserves) + 1;
+        uint256 liquidityMinted = msg.value * totalLiquidity / ethReserves;
+
+        liquidity[msg.sender] += liquidityMinted;
+        totalLiquidity += liquidityMinted;
+        token.transferFrom(msg.sender, address(this), tokenDeposit);
+        emit LiquidityProvided(msg.sender, liquidityMinted, msg.value, tokenDeposit);
+
+        return tokenDeposit;
+    }
     /**
      * @notice allows withdrawal of $BAL and $ETH from liquidity pool
      * NOTE: with this current code, the msg caller could end up getting very little back if the liquidity is super low in the pool. I guess they could see that with the UI.
      */
-    function withdraw(uint256 amount) public returns (uint256 eth_amount, uint256 token_amount) {}
+
+    function withdraw(uint256 amount) public returns (uint256 eth_amount, uint256 token_amount) {
+        if (liquidity[msg.sender] < amount) {
+            revert DEX__NotEnoughTokens();
+        }
+        uint256 ethReserve = address(this).balance;
+        uint256 tokenReserve = token.balanceOf(address(this));
+
+        uint256 ethWithdrawn = amount * ethReserve / totalLiquidity;
+        uint256 tokenAmount = amount * tokenReserve / totalLiquidity;
+
+        liquidity[msg.sender] -= amount;
+        totalLiquidity -= amount;
+
+        (bool successEthTransfer,) = payable(msg.sender).call{value: ethWithdrawn}("");
+        bool successTokenTransfer = token.transfer(msg.sender, tokenAmount);
+        if (!successEthTransfer || !successTokenTransfer) {
+            revert DEX__TokenTransferFailed();
+        }
+        emit LiquidityRemoved(msg.sender, amount, tokenAmount, ethWithdrawn);
+
+        return (ethWithdrawn, tokenAmount);
+    }
 }
