@@ -953,7 +953,7 @@ const deployedContracts = {
       },
     },
     DEX: {
-      address: "0xF3ab1b6c8c64C148Ca9533091ba2B1719419CaC3",
+      address: "0x4A733848e7b72a2a60bBB9B158E6Fe350262C212",
       abi: [
         {
           inputs: [
@@ -965,6 +965,41 @@ const deployedContracts = {
           ],
           stateMutability: "nonpayable",
           type: "constructor",
+        },
+        {
+          inputs: [],
+          name: "DEX__AlreadyHasLiquidity",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DEX__EthTransferFailed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DEX__NotEnoughBalance",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DEX__NotEnoughEthSent",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DEX__NotEnoughTokenSent",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DEX__NotEnoughTokens",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DEX__TokenTransferFailed",
+          type: "error",
         },
         {
           anonymous: false,
@@ -1077,6 +1112,32 @@ const deployedContracts = {
           ],
           name: "TokenToEthSwap",
           type: "event",
+        },
+        {
+          inputs: [],
+          name: "BASE_FEE",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "FEE",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
         },
         {
           inputs: [],
