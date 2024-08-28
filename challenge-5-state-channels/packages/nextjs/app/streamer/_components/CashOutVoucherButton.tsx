@@ -3,6 +3,7 @@ import { Signature } from "ethers";
 import humanizeDuration from "humanize-duration";
 import { Address } from "viem";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useEffect } from "react";
 
 type CashOutVoucherButtonProps = {
   clientAddress: Address;
@@ -14,6 +15,14 @@ type CashOutVoucherButtonProps = {
 export const CashOutVoucherButton = ({ clientAddress, challenged, closed, voucher }: CashOutVoucherButtonProps) => {
   const { writeContractAsync } = useScaffoldWriteContract("Streamer");
 
+  async function autoWithdrawEarningsOnChallenged(voucher) {
+    await writeContractAsync({
+      functionName: "withdrawEarnings",
+      // TODO: change when viem will implement splitSignature
+      args: [{ ...voucher, sig: voucher?.signature ? (Signature.from(voucher.signature) as any) : undefined }],
+    });
+  }
+
   const { data: timeLeft } = useScaffoldReadContract({
     contractName: "Streamer",
     functionName: "timeLeft",
@@ -24,22 +33,22 @@ export const CashOutVoucherButton = ({ clientAddress, challenged, closed, vouche
   const isButtonDisabled =
     !voucher || closed.includes(clientAddress) || (challenged.includes(clientAddress) && !timeLeft);
 
+  useEffect(() => {
+    if (challenged.includes(clientAddress)) {
+      autoWithdrawEarningsOnChallenged(voucher);
+    }
+  }, [challenged, clientAddress]);
+
   return (
     <div className="w-full flex flex-col items-center">
       <div className="h-8 pt-2">
         {challenged.includes(clientAddress) &&
-          (!!timeLeft ? (
-            <>
-              <span>Time left:</span> {timeLeft && humanizeDuration(Number(timeLeft) * 1000)}
-            </>
-          ) : (
-            <>Challenged. Cash out timed out</>
-          ))}
+          <span> This channel was challenged, auto withdraw done!
+          </span>}
       </div>
-      <button
-        className={`mt-3 btn btn-primary${challenged.includes(clientAddress) ? " btn-error" : ""}${
-          isButtonDisabled ? " btn-disabled" : ""
-        }`}
+      {/*<button
+        className={`mt-3 btn btn-primary${challenged.includes(clientAddress) ? " btn-error" : ""}${isButtonDisabled ? " btn-disabled" : ""
+          }`}
         disabled={isButtonDisabled}
         onClick={async () => {
           try {
@@ -54,7 +63,7 @@ export const CashOutVoucherButton = ({ clientAddress, challenged, closed, vouche
         }}
       >
         Cash out latest voucher
-      </button>
+      </button>*/}
     </div>
   );
 };

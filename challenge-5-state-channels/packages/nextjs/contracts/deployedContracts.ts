@@ -7,11 +7,41 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     Streamer: {
-      address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      address: "0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f",
       abi: [
         {
           inputs: [],
           name: "Streamer__AlreadyRunningChannel",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "Streamer__ClosingTimeHasNotPassedYet",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "Streamer__InvalidSignatureLength",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "Streamer__NoChannelCreated",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "Streamer__NoChannelToClose",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "Streamer__NotEnoughBalance",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "Streamer__PaymentError",
           type: "error",
         },
         {
@@ -96,6 +126,20 @@ const deployedContracts = {
           ],
           name: "Withdrawn",
           type: "event",
+        },
+        {
+          inputs: [],
+          name: "challengeChannel",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "defundChannel",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
         },
         {
           inputs: [],

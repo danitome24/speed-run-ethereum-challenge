@@ -67,6 +67,20 @@ export const Guru: FC<GuruProps> = ({ challenged, closed, opened, writable }) =>
       }
       const updatedBalance = BigInt(`0x${data.updatedBalance}`);
 
+      const packed = encodePacked(["uint256"], [updatedBalance]);
+      const hashed = keccak256(packed);
+      const arrayified = toBytes(hashed);
+
+      const isSignatureValid = await verifyMessage({
+        address: clientAddress,
+        message: { raw: arrayified },
+        signature: data.signature
+      });
+      if (!isSignatureValid) {
+        console.log("Invalid signature");
+        return;
+      }
+
       /*
        *  Checkpoint 3:
        *
@@ -132,13 +146,13 @@ export const Guru: FC<GuruProps> = ({ challenged, closed, opened, writable }) =>
             </div>
 
             {/* Checkpoint 4: */}
-            {/* <CashOutVoucherButton
+             <CashOutVoucherButton
               key={clientAddress}
               clientAddress={clientAddress}
               challenged={challenged}
               closed={closed}
               voucher={vouchers[clientAddress]}
-            /> */}
+            />
           </div>
         ))}
       </div>

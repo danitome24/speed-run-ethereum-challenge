@@ -9,6 +9,12 @@ contract Streamer is Ownable {
     // == Errors
     // =============
     error Streamer__AlreadyRunningChannel();
+    error Streamer__InvalidSignatureLength();
+    error Streamer__NotEnoughBalance();
+    error Streamer__PaymentError();
+    error Streamer__NoChannelCreated();
+    error Streamer__NoChannelToClose();
+    error Streamer__ClosingTimeHasNotPassedYet();
 
     // =============
     // == Events
@@ -51,7 +57,7 @@ contract Streamer is Ownable {
         return canCloseAt[channel] - block.timestamp;
     }
 
-    function withdrawEarnings(Voucher calldata voucher) public {
+    function withdrawEarnings(Voucher calldata voucher) public onlyOwner {
         // like the off-chain code, signatures are applied to the hash of the data
         // instead of the raw data itself
         bytes32 hashed = keccak256(abi.encode(voucher.updatedBalance));
@@ -78,6 +84,17 @@ contract Streamer is Ownable {
           - adjust the channel balance, and pay the Guru(Contract owner). Get the owner address with the `owner()` function.
           - emit the Withdrawn event
         */
+        address signer = ecrecover(prefixedHashed, voucher.sig.v, voucher.sig.r, voucher.sig.s);
+        if (balances[signer] <= voucher.updatedBalance) {
+            revert Streamer__NotEnoughBalance();
+        }
+        uint256 paymentOf = balances[signer] - voucher.updatedBalance;
+        balances[signer] -= paymentOf;
+        (bool success,) = payable(owner()).call{value: paymentOf}("");
+        if (!success) {
+            revert Streamer__PaymentError();
+        }
+        emit Withdrawn(signer, paymentOf);
     }
 
     /*
@@ -88,6 +105,13 @@ contract Streamer is Ownable {
     - updates canCloseAt[msg.sender] to some future time
     - emits a Challenged event
     */
+    function challengeChannel() public {
+        if (balances[msg.sender] <= 0) {
+            revert Streamer__NoChannelCreated();
+        }
+        canCloseAt[msg.sender] = block.timestamp + 30 seconds;
+        emit Challenged(msg.sender);
+    }
 
     /*
     Checkpoint 5b: Close the channel
@@ -98,6 +122,20 @@ contract Streamer is Ownable {
     - sends the channel's remaining funds to msg.sender, and sets the balance to 0
     - emits the Closed event
     */
+    function defundChannel() public {
+        if (canCloseAt[msg.sender] <= 0) {
+            revert Streamer__NoChannelToClose();
+        }
+        if (block.timestamp <= canCloseAt[msg.sender]) {
+            revert Streamer__ClosingTimeHasNotPassedYet();
+        }
+        (bool success, ) = payable(msg.sender).call{value: balances[msg.sender]}("");
+        if (!success) {
+            revert Streamer__PaymentError();
+        }
+        balances[msg.sender] = 0;
+        emit Closed(msg.sender);
+    }
 
     // =============
     // == Structs
