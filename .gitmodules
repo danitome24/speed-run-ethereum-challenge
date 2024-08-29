@@ -1,0 +1,9 @@
+[submodule "challenge-6-multisig-wallet/packages/foundry/lib/forge-std"]
+	path = challenge-6-multisig-wallet/packages/foundry/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "challenge-6-multisig-wallet/packages/foundry/lib/solidity-bytes-utils"]
+	path = challenge-6-multisig-wallet/packages/foundry/lib/solidity-bytes-utils
+	url = https://github.com/GNSPS/solidity-bytes-utils
+[submodule "challenge-6-multisig-wallet/packages/foundry/lib/openzeppelin-contracts"]
+	path = challenge-6-multisig-wallet/packages/foundry/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts

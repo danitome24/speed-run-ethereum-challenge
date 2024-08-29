@@ -4,6 +4,31 @@
  */
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
-const deployedContracts = {} as const;
+const deployedContracts = {
+  31337: {
+    MetaMultisigWallet: {
+      address: "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512",
+      abi: [
+        {
+          type: "constructor",
+          inputs: [
+            {
+              name: "owners",
+              type: "address[]",
+              internalType: "address[]",
+            },
+            {
+              name: "requiredSign",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+        },
+      ],
+      inheritedFunctions: {},
+    },
+  },
+} as const;
 
 export default deployedContracts satisfies GenericContractsDeclaration;
