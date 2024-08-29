@@ -7,23 +7,187 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     MetaMultisigWallet: {
-      address: "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512",
+      address: "0x5fc8d32690cc91d4c39d9d3abcbd16989f875707",
       abi: [
         {
           type: "constructor",
           inputs: [
             {
-              name: "owners",
-              type: "address[]",
-              internalType: "address[]",
+              name: "initialOwner",
+              type: "address",
+              internalType: "address",
             },
             {
-              name: "requiredSign",
+              name: "requiredSigners",
               type: "uint256",
               internalType: "uint256",
             },
           ],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "addSigner",
+          inputs: [
+            {
+              name: "who",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "newRequiredSigners",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "executeTransaction",
+          inputs: [
+            {
+              name: "id",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "removeSigner",
+          inputs: [
+            {
+              name: "who",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "newRequiredSigners",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "s_nonce",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "s_numRequiredSigners",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "s_owners",
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "s_transactions",
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "id",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "functionToExecute",
+              type: "bytes",
+              internalType: "bytes",
+            },
+            {
+              name: "numOfSigners",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "executed",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "signTransaction",
+          inputs: [
+            {
+              name: "id",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "transferFunds",
+          inputs: [
+            {
+              name: "to",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "amount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "error",
+          name: "MetaMultisigWallet__NoZeroAddress",
+          inputs: [],
         },
       ],
       inheritedFunctions: {},
