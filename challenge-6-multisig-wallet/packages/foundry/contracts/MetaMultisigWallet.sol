@@ -10,7 +10,7 @@ contract MetaMultisigWallet {
     //==============
     //==== Events
     //===============
-    event TransactionAddSignerCreated(address, uint256);
+    event SignerAdded(uint256, address, uint256);
 
     //==============
     //==== State variables
@@ -18,7 +18,6 @@ contract MetaMultisigWallet {
     address[] public s_owners;
     uint256 public s_numRequiredSigners;
     uint256 public s_nonce;
-    mapping(uint256 => Transaction) public s_transactions;
 
     //==============
     //==== Structs
@@ -31,11 +30,13 @@ contract MetaMultisigWallet {
     }
 
     /**
-     * @param initialOwner Initial owner of multisigWallet.
+     * @param owners Initial owners of multisigWallet.
      * @param requiredSigners Number of minimum required signatures to execute a tx.
      */
-    constructor(address initialOwner, uint256 requiredSigners) {
-        s_owners.push(initialOwner);
+    constructor(address[] memory owners, uint256 requiredSigners) {
+        for (uint256 i = 0; i < owners.length; i++) {
+            s_owners.push(owners[i]);
+        }
         s_numRequiredSigners = requiredSigners;
         s_nonce = 0;
     }
@@ -54,15 +55,8 @@ contract MetaMultisigWallet {
             revert MetaMultisigWallet__NoZeroAddress();
         }
         s_numRequiredSigners = newRequiredSigners;
-        bytes memory funcToExecute = abi.encodeWithSignature("addSigner(address,uint256)", who, newRequiredSigners);
-        s_transactions[s_nonce] = Transaction({
-            id: s_nonce,
-            functionToExecute: funcToExecute,
-            numOfSigners: newRequiredSigners,
-            isExecuted: false
-        });
+        emit SignerAdded(s_nonce, who, newRequiredSigners);
         s_nonce++;
-        emit TransactionAddSignerCreated(who, newRequiredSigners);
     }
 
     /**
@@ -83,11 +77,15 @@ contract MetaMultisigWallet {
      * Approves a transaction from signer.
      * @param id Tx request id.
      */
-    function signTransaction(uint256 id) external { }
+    function signTransaction(
+        uint256 id
+    ) external { }
 
     /**
      * Execute a transaction from signer.
      * @param id Tx request id.
      */
-    function executeTransaction(uint256 id) external { }
+    function executeTransaction(
+        uint256 id
+    ) external { }
 }
