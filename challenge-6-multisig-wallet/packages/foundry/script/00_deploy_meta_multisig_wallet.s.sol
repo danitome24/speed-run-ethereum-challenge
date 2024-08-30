@@ -9,7 +9,7 @@ contract DeployMetaMultisigWallet is ScaffoldETHDeploy {
         uint256 deployerPrivateKey = setupLocalhostEnv();
         vm.startBroadcast(deployerPrivateKey);
 
-        address[] memory owners = new address[](0);
+        address[] memory owners = new address[](1);
         owners[0] = 0x97289b9C7AE16114D993057F81f99457224a59b3;
         uint256 requiredSigners = 1;
 

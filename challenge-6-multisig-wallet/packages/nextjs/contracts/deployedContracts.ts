@@ -7,15 +7,15 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     MetaMultisigWallet: {
-      address: "0x5fc8d32690cc91d4c39d9d3abcbd16989f875707",
+      address: "0xb7f8bc63bbcad18155201308c8f3540b07f84f5e",
       abi: [
         {
           type: "constructor",
           inputs: [
             {
-              name: "initialOwner",
-              type: "address",
-              internalType: "address",
+              name: "owners",
+              type: "address[]",
+              internalType: "address[]",
             },
             {
               name: "requiredSigners",
@@ -48,13 +48,71 @@ const deployedContracts = {
           name: "executeTransaction",
           inputs: [
             {
-              name: "id",
+              name: "user",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "callData",
+              type: "bytes",
+              internalType: "bytes",
+            },
+            {
+              name: "amount",
               type: "uint256",
               internalType: "uint256",
             },
           ],
           outputs: [],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "getHash",
+          inputs: [
+            {
+              name: "funcName",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "user",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "argument",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "bytes",
+              internalType: "bytes",
+            },
+          ],
+          stateMutability: "pure",
+        },
+        {
+          type: "function",
+          name: "isOwnerActive",
+          inputs: [
+            {
+              name: "owner",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "view",
         },
         {
           type: "function",
@@ -76,19 +134,6 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "s_nonce",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
           name: "s_numRequiredSigners",
           inputs: [],
           outputs: [
@@ -105,48 +150,14 @@ const deployedContracts = {
           name: "s_owners",
           inputs: [
             {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
+              name: "owner",
               type: "address",
               internalType: "address",
             },
           ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "s_transactions",
-          inputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
           outputs: [
             {
-              name: "id",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "functionToExecute",
-              type: "bytes",
-              internalType: "bytes",
-            },
-            {
-              name: "numOfSigners",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "executed",
+              name: "isActive",
               type: "bool",
               internalType: "bool",
             },
@@ -155,16 +166,16 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "signTransaction",
-          inputs: [
+          name: "s_ownersLength",
+          inputs: [],
+          outputs: [
             {
-              name: "id",
+              name: "",
               type: "uint256",
               internalType: "uint256",
             },
           ],
-          outputs: [],
-          stateMutability: "nonpayable",
+          stateMutability: "view",
         },
         {
           type: "function",
@@ -185,8 +196,61 @@ const deployedContracts = {
           stateMutability: "nonpayable",
         },
         {
+          type: "event",
+          name: "SignerAdded",
+          inputs: [
+            {
+              name: "",
+              type: "address",
+              indexed: false,
+              internalType: "address",
+            },
+            {
+              name: "",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "SignerRemoved",
+          inputs: [
+            {
+              name: "",
+              type: "address",
+              indexed: false,
+              internalType: "address",
+            },
+            {
+              name: "",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "error",
+          name: "MetaMultisigWallet__AmountCannotBeZero",
+          inputs: [],
+        },
+        {
           type: "error",
           name: "MetaMultisigWallet__NoZeroAddress",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "MetaMultisigWallet__NotEnoughBalance",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "MetaMultisigWallet__TransferError",
           inputs: [],
         },
       ],

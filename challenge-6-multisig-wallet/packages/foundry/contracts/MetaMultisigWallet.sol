@@ -6,6 +6,9 @@ contract MetaMultisigWallet {
     //==== Errors
     //===============
     error MetaMultisigWallet__NoZeroAddress();
+    error MetaMultisigWallet__AmountCannotBeZero();
+    error MetaMultisigWallet__TransferError();
+    error MetaMultisigWallet__NotEnoughBalance();
 
     //==============
     //==== Events
@@ -23,11 +26,13 @@ contract MetaMultisigWallet {
     //==============
     //==== Structs
     //===============
-    struct Transaction {
-        uint256 id;
-        bytes functionToExecute;
-        uint256 numOfSigners;
-        bool isExecuted;
+
+    //==============
+    //==== Modifiers
+    //===============
+    modifier onlySelf() {
+        require(msg.sender == address(this), "Only can be executed by self contract");
+        _;
     }
 
     /**
@@ -51,7 +56,7 @@ contract MetaMultisigWallet {
      * @param who New signer in.
      * @param newRequiredSigners New required signers to approve a tx.
      */
-    function addSigner(address who, uint256 newRequiredSigners) external {
+    function addSigner(address who, uint256 newRequiredSigners) public {
         if (who == address(0)) {
             revert MetaMultisigWallet__NoZeroAddress();
         }
@@ -66,7 +71,7 @@ contract MetaMultisigWallet {
      * @param who New signer in.
      * @param newRequiredSigners New required signers to approve a tx.
      */
-    function removeSigner(address who, uint256 newRequiredSigners) external {
+    function removeSigner(address who, uint256 newRequiredSigners) public {
         if (who == address(0)) {
             revert MetaMultisigWallet__NoZeroAddress();
         }
@@ -80,19 +85,35 @@ contract MetaMultisigWallet {
      * @param to Address who will receive funds.
      * @param amount Amount sent.
      */
-    function transferFunds(address to, uint256 amount) external { }
+    function transferFunds(address to, uint256 amount) public {
+        if (to == address(0)) {
+            revert MetaMultisigWallet__NoZeroAddress();
+        }
+        if (amount == 0) {
+            revert MetaMultisigWallet__AmountCannotBeZero();
+        }
+        if (address(this).balance <= amount) {
+            revert MetaMultisigWallet__NotEnoughBalance();
+        }
+        (bool success,) = to.call{ value: amount }("");
+        if (!success) {
+            revert MetaMultisigWallet__TransferError();
+        }
+    }
 
-    /**
-     * Approves a transaction from signer.
-     * @param id Tx request id.
-     */
-    function signTransaction(uint256 id) external { }
+    //  addSigner(address, uint256)
+    //  0x5DB21C9aa77fC9393B8da1185C8dEEB7F31EC664
+    //  1
+    // =====> 0x815c4c880000000000000000000000005db21c9aa77fc9393b8da1185c8deeb7f31ec6640000000000000000000000000000000000000000000000000000000000000001
 
-    /**
-     * Execute a transaction from signer.
-     * @param id Tx request id.
-     */
-    function executeTransaction(uint256 id) external { }
+    function executeTransaction(bytes memory callData, uint256 amount, bytes[] memory signatures) external {
+        (bool success, bytes memory data) = address(this).call(callData);
+        if (!success) revert MetaMultisigWallet__TransferError();
+    }
+
+    function getHash(string memory funcName, address user, uint256 argument) external pure returns (bytes memory) {
+        return abi.encodeWithSignature(funcName, user, argument);
+    }
 
     /**
      * Check if owner is active or not.
