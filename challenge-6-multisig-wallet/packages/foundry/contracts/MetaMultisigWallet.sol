@@ -10,14 +10,15 @@ contract MetaMultisigWallet {
     //==============
     //==== Events
     //===============
-    event SignerAdded(uint256, address, uint256);
+    event SignerAdded(address, uint256);
+    event SignerRemoved(address, uint256);
 
     //==============
     //==== State variables
     //===============
-    address[] public s_owners;
+    mapping(address owner => bool isActive) public s_owners; // address user => is
     uint256 public s_numRequiredSigners;
-    uint256 public s_nonce;
+    uint256 public s_ownersLength;
 
     //==============
     //==== Structs
@@ -35,10 +36,10 @@ contract MetaMultisigWallet {
      */
     constructor(address[] memory owners, uint256 requiredSigners) {
         for (uint256 i = 0; i < owners.length; i++) {
-            s_owners.push(owners[i]);
+            s_owners[owners[i]] = true;
+            s_ownersLength++;
         }
         s_numRequiredSigners = requiredSigners;
-        s_nonce = 0;
     }
 
     //==============
@@ -55,8 +56,9 @@ contract MetaMultisigWallet {
             revert MetaMultisigWallet__NoZeroAddress();
         }
         s_numRequiredSigners = newRequiredSigners;
-        emit SignerAdded(s_nonce, who, newRequiredSigners);
-        s_nonce++;
+        s_owners[who] = true;
+        emit SignerAdded(who, newRequiredSigners);
+        s_ownersLength++;
     }
 
     /**
@@ -64,7 +66,14 @@ contract MetaMultisigWallet {
      * @param who New signer in.
      * @param newRequiredSigners New required signers to approve a tx.
      */
-    function removeSigner(address who, uint256 newRequiredSigners) external { }
+    function removeSigner(address who, uint256 newRequiredSigners) external {
+        if (who == address(0)) {
+            revert MetaMultisigWallet__NoZeroAddress();
+        }
+        s_numRequiredSigners = newRequiredSigners;
+        s_owners[who] = false;
+        emit SignerRemoved(who, newRequiredSigners);
+    }
 
     /**
      * Create a tx request to transfer funds.
@@ -77,15 +86,19 @@ contract MetaMultisigWallet {
      * Approves a transaction from signer.
      * @param id Tx request id.
      */
-    function signTransaction(
-        uint256 id
-    ) external { }
+    function signTransaction(uint256 id) external { }
 
     /**
      * Execute a transaction from signer.
      * @param id Tx request id.
      */
-    function executeTransaction(
-        uint256 id
-    ) external { }
+    function executeTransaction(uint256 id) external { }
+
+    /**
+     * Check if owner is active or not.
+     * @param owner Owner address
+     */
+    function isOwnerActive(address owner) external view returns (bool) {
+        return s_owners[owner];
+    }
 }
