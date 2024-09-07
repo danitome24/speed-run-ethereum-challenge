@@ -4,10 +4,9 @@ import { type FC, useEffect, useState } from "react";
 import { AddressInput, EtherInput, InputBase, IntegerInput } from "~~/components/scaffold-eth";
 import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { useTransactionStore } from "~~/services/store/transactionStore";
-import { saveTransaction } from "~~/services/api/transactionApi";
 
 export type TransactionType = {
-    id?: number,
+    id: number,
     function: string,
     to: `0x${string}`,
     arg: bigint,
@@ -19,14 +18,13 @@ export type TransactionType = {
 
 export const CreateTransaction: NextPage = () => {
     const METHODS = ["addSigner", "removeSigner", "transferFunds"];
+    const transactionStore = useTransactionStore();
 
 
     const { data: initialNonce } = useScaffoldReadContract({
         contractName: "MetaMultisigWallet",
         functionName: "s_nonce"
     });
-
-    const addTransaction = useTransactionStore(state => state.addTransaction);
 
 
     const [funcSelected, setFuncSelected] = useState("addSigner");
@@ -41,6 +39,7 @@ export const CreateTransaction: NextPage = () => {
 
     const handleCreate = async () => {
         const newTx: TransactionType = {
+            id: 0,
             function: funcSelected + "(address,uint256)",
             to: signer as `0x${string}`,
             arg: BigInt(1),
@@ -51,9 +50,7 @@ export const CreateTransaction: NextPage = () => {
         newTx.callData = await multisigWalletContract?.read.getHash([newTx.function, newTx.to, newTx.arg]);
         setCallData(newTx.callData);
 
-        // transactions.;
-        addTransaction(newTx);
-        saveTransaction(newTx);
+        transactionStore.addTransaction(newTx);
     }
 
     return (

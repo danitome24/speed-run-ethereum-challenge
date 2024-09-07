@@ -1,28 +1,16 @@
-
 import { type FC, useEffect, useState } from "react";
 import type { NextPage } from "next";
-import { useTransactionStore } from "~~/services/store/transactionStore";
 import TransactionRow from "./TransactionRow";
-import { TransactionType } from "./CreateTransaction";
-import { getTransactions } from "~~/services/api/transactionApi";
+import { useTransactionStore } from "~~/services/store/transactionStore";
 
 export const TransactionsList: NextPage = () => {
 
-    const [transactions, setTransactions] = useState([])
-
+    const transactions = useTransactionStore((state) => state.transactions);
+    const fetchTransactions = useTransactionStore((state) => state.fetchTransactions);
+console.log(transactions)
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await getTransactions();
-                setTransactions(response)
-
-            } catch (error) {
-
-            }
-        };
-        fetchData()
-    }, [transactions]);
-
+        fetchTransactions();
+    }, [fetchTransactions]);
 
     return (
         <div className="flex flex-col gap-y-6 lg:gap-y-8 py-4 lg:py-12 justify-center items-center">
