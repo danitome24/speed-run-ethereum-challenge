@@ -134,6 +134,19 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "s_nonce",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
           name: "s_numRequiredSigners",
           inputs: [],
           outputs: [

@@ -22,6 +22,7 @@ contract MetaMultisigWallet {
     mapping(address owner => bool isActive) public s_owners; // address user => is
     uint256 public s_numRequiredSigners;
     uint256 public s_ownersLength;
+    uint256 public s_nonce;
 
     //==============
     //==== Structs
@@ -45,6 +46,7 @@ contract MetaMultisigWallet {
             s_ownersLength++;
         }
         s_numRequiredSigners = requiredSigners;
+        s_nonce = 0;
     }
 
     //==============
@@ -101,14 +103,15 @@ contract MetaMultisigWallet {
         }
     }
 
-    //  addSigner(address, uint256)
+    //  addSigner(address,uint256)
     //  0x5DB21C9aa77fC9393B8da1185C8dEEB7F31EC664
     //  1
     // =====> 0x815c4c880000000000000000000000005db21c9aa77fc9393b8da1185c8deeb7f31ec6640000000000000000000000000000000000000000000000000000000000000001
 
     function executeTransaction(bytes memory callData, uint256 amount, bytes[] memory signatures) external {
-        (bool success, bytes memory data) = address(this).call(callData);
+        (bool success,) = address(this).call(callData);
         if (!success) revert MetaMultisigWallet__TransferError();
+        s_nonce++;
     }
 
     function getHash(string memory funcName, address user, uint256 argument) external pure returns (bytes memory) {

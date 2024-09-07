@@ -1,20 +1,59 @@
 
 import type { NextPage } from "next";
 import { type FC, useEffect, useState } from "react";
-import { FunctionSelector } from "./FunctionSelector";
-import { AddressInput, EtherInput, InputBase } from "~~/components/scaffold-eth";
+import { AddressInput, EtherInput, InputBase, IntegerInput } from "~~/components/scaffold-eth";
+import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { useTransactionStore } from "~~/services/store/transactionStore";
+
+export type TransactionType = {
+    id: number,
+    function: string,
+    to: `0x${string}`,
+    arg: bigint,
+    callData?: `0x${string}`,
+    signatures?: `0x${string}`[],
+    requiredSigners: number,
+    executed: boolean
+}
 
 export const CreateTransaction: NextPage = () => {
     const METHODS = ["addSigner", "removeSigner", "transferFunds"];
 
-    const nonce = 0;
-    const [funcSelected, setFuncSelected] = useState("");
+
+    const { data: initialNonce } = useScaffoldReadContract({
+        contractName: "MetaMultisigWallet",
+        functionName: "s_nonce"
+    });
+
+    // const transactions = useTransactionStore(state => state.transactions);
+    const addTransaction = useTransactionStore(state => state.addTransaction);
+
+
+    const [funcSelected, setFuncSelected] = useState("addSigner");
     const [ethValue, setEthValue] = useState("");
-    const [callData, setCallData] = useState("");
+    const [newReqSigners, setNewReqSigners] = useState(0);
+    const [callData, setCallData] = useState<any | null>("");
     const [signer, setSigner] = useState("");
 
+    const { data: multisigWalletContract } = useScaffoldContract({
+        contractName: "MetaMultisigWallet"
+    })
+
     const handleCreate = async () => {
-        // do stuff with contract.
+        const newTx: TransactionType = {
+            id: 0,
+            function: funcSelected + "(address,uint256)",
+            to: signer as `0x${string}`,
+            arg: BigInt(1),
+            requiredSigners: Number(newReqSigners),
+            executed: false
+        }
+
+        newTx.callData = await multisigWalletContract?.read.getHash([newTx.function, newTx.to, newTx.arg]);
+        setCallData(newTx.callData);
+
+        // transactions.;
+        addTransaction(newTx);
     }
 
     return (
@@ -27,7 +66,7 @@ export const CreateTransaction: NextPage = () => {
                         </label>
                         <InputBase
                             disabled
-                            value={nonce !== undefined ? `# ${nonce}` : "Loading..."}
+                            value={initialNonce !== undefined ? `# ${initialNonce}` : "Loading..."}
                             placeholder={"Loading..."}
                             onChange={() => {
                                 null;
@@ -41,7 +80,7 @@ export const CreateTransaction: NextPage = () => {
                                 <span className="label-text">Select method</span>
                             </label>
                             <select className="select select-bordered select-sm w-full bg-base-200 text-accent font-medium" onChange={(e) => setFuncSelected(e.target.value)}>
-                                {METHODS.map(method => (
+                                {METHODS.map((method, i) => (
                                     <option key={method} value={method}>
                                         {method}
                                     </option>
@@ -61,6 +100,16 @@ export const CreateTransaction: NextPage = () => {
                                 onChange={val => {
                                     setEthValue(val);
                                 }}
+                            />
+                        )}
+
+                        {funcSelected !== "transferFunds" && (
+                            <InputBase
+                                value={newReqSigners}
+                                onChange={val => {
+                                    setNewReqSigners(val)
+                                }}
+                                placeholder="Set new required signers"
                             />
                         )}
 
