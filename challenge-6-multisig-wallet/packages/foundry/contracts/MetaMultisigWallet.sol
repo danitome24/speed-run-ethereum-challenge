@@ -13,8 +13,8 @@ contract MetaMultisigWallet {
     //==============
     //==== Events
     //===============
-    event SignerAdded(address, uint256);
-    event SignerRemoved(address, uint256);
+    event SignerAdded(address indexed who, uint256 newReqSigners);
+    event SignerRemoved(address indexed who , uint256 newReqSigners);
 
     //==============
     //==== State variables
@@ -44,6 +44,7 @@ contract MetaMultisigWallet {
         for (uint256 i = 0; i < owners.length; i++) {
             s_owners[owners[i]] = true;
             s_ownersLength++;
+            emit SignerAdded(owners[i], requiredSigners);
         }
         s_numRequiredSigners = requiredSigners;
         s_nonce = 0;

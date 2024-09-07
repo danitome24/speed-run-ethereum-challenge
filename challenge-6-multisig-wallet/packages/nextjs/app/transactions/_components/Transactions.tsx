@@ -4,14 +4,13 @@ import TransactionRow from "./TransactionRow";
 import { useTransactionStore } from "~~/services/store/transactionStore";
 
 export const TransactionsList: NextPage = () => {
-
     const transactions = useTransactionStore((state) => state.transactions);
     const fetchTransactions = useTransactionStore((state) => state.fetchTransactions);
-    console.log(transactions)
+
     useEffect(() => {
         fetchTransactions();
     }, [fetchTransactions]);
-console.log(transactions)
+
     return (
         <div className="col-start-1 col-span-6 grid grid-cols-1 gap-8 lg:gap-10">
             <div className=" col-span-1 lg:col-span-2 flex flex-col gap-6">

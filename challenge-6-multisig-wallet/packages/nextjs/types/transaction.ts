@@ -13,3 +13,7 @@ export type Signature = {
     address: `0x${string}`,
     signature: `0x${string}`
 }
+
+export type Signer = {
+    address: `0x${string}`
+}

@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     MetaMultisigWallet: {
-      address: "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+      address: "0x2279b7a0a67db372996a5fab50d91eaa73d2ebe6",
       abi: [
         {
           type: "constructor",
@@ -213,13 +213,13 @@ const deployedContracts = {
           name: "SignerAdded",
           inputs: [
             {
-              name: "",
+              name: "who",
               type: "address",
-              indexed: false,
+              indexed: true,
               internalType: "address",
             },
             {
-              name: "",
+              name: "newReqSigners",
               type: "uint256",
               indexed: false,
               internalType: "uint256",
@@ -232,13 +232,13 @@ const deployedContracts = {
           name: "SignerRemoved",
           inputs: [
             {
-              name: "",
+              name: "who",
               type: "address",
-              indexed: false,
+              indexed: true,
               internalType: "address",
             },
             {
-              name: "",
+              name: "newReqSigners",
               type: "uint256",
               indexed: false,
               internalType: "uint256",
