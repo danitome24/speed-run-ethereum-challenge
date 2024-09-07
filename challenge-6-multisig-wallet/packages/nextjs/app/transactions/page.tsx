@@ -8,7 +8,7 @@ import { useScaffoldEventHistory } from "~~/hooks/scaffold-eth";
 import { Signer } from "~~/types/transaction";
 
 const Transactions: NextPage = () => {
-    const [signers, setSigners] = useState([]);
+    const [signers, setSigners] = useState<Signer[]>([]);
     const {
         data: events,
         isLoading: isLoadingEvents,
@@ -23,8 +23,9 @@ const Transactions: NextPage = () => {
 
     useEffect(() => {
         if (events) {
-            const newSigners = events.map(event => event.args.who);
-
+            const newSigners: Signer[] = events.map(event => {
+                return { address: event.args.who } as Signer;
+            });
             setSigners(newSigners);
         }
     }, [events]);
@@ -44,7 +45,7 @@ const Transactions: NextPage = () => {
                                         {signers?.length ? (
                                             <ul>
                                                 {signers.map((signer, i) => (
-                                                    <li key={i}>{signer}</li>
+                                                    <li key={i}>{signer.address}</li>
                                                 ))}
                                             </ul>
                                         ) : (
