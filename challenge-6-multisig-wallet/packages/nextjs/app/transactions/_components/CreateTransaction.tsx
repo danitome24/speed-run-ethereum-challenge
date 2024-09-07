@@ -4,9 +4,10 @@ import { type FC, useEffect, useState } from "react";
 import { AddressInput, EtherInput, InputBase, IntegerInput } from "~~/components/scaffold-eth";
 import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { useTransactionStore } from "~~/services/store/transactionStore";
+import { saveTransaction } from "~~/services/api/transactionApi";
 
 export type TransactionType = {
-    id: number,
+    id?: number,
     function: string,
     to: `0x${string}`,
     arg: bigint,
@@ -25,7 +26,6 @@ export const CreateTransaction: NextPage = () => {
         functionName: "s_nonce"
     });
 
-    // const transactions = useTransactionStore(state => state.transactions);
     const addTransaction = useTransactionStore(state => state.addTransaction);
 
 
@@ -41,7 +41,6 @@ export const CreateTransaction: NextPage = () => {
 
     const handleCreate = async () => {
         const newTx: TransactionType = {
-            id: 0,
             function: funcSelected + "(address,uint256)",
             to: signer as `0x${string}`,
             arg: BigInt(1),
@@ -54,6 +53,7 @@ export const CreateTransaction: NextPage = () => {
 
         // transactions.;
         addTransaction(newTx);
+        saveTransaction(newTx);
     }
 
     return (

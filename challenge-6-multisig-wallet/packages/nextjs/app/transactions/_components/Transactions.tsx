@@ -4,10 +4,26 @@ import type { NextPage } from "next";
 import { useTransactionStore } from "~~/services/store/transactionStore";
 import TransactionRow from "./TransactionRow";
 import { TransactionType } from "./CreateTransaction";
+import { getTransactions } from "~~/services/api/transactionApi";
 
 export const TransactionsList: NextPage = () => {
-    const transactions: TransactionType[] = useTransactionStore(state => state.transactions);
-console.log(transactions)
+
+    const [transactions, setTransactions] = useState([])
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await getTransactions();
+                setTransactions(response)
+
+            } catch (error) {
+
+            }
+        };
+        fetchData()
+    }, [transactions]);
+
+
     return (
         <div className="flex flex-col gap-y-6 lg:gap-y-8 py-4 lg:py-12 justify-center items-center">
             <div className="flex flex-row gap-2 w-full max-w-7xl pb-1 px-6 lg:px-10 flex-wrap">

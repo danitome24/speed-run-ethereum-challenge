@@ -2,7 +2,7 @@
 
 import { type FC, useEffect, useState } from "react";
 import type { NextPage } from "next";
-import { FunctionSelector, CreateTransaction, TransactionsList } from "./_components";
+import { CreateTransaction, TransactionsList } from "./_components";
 import { AddressInput, EtherInput, InputBase } from "~~/components/scaffold-eth";
 
 
