@@ -23,13 +23,11 @@ const Transactions: NextPage = () => {
 
     useEffect(() => {
         if (events) {
-            // Extraer los nuevos signers de los eventos y actualizar el estado
             const newSigners = events.map(event => event.args.who);
 
-            // Actualizar el estado de signers
             setSigners(newSigners);
         }
-    }, [events]); // Dependencia de events
+    }, [events]);
 
 
     return (
