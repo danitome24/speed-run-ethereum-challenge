@@ -1,22 +1,21 @@
 import { TransactionType } from "./CreateTransaction";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
-import { useWalletClient } from 'wagmi'
-import { editTransaction } from "~~/services/api/transactionApi";
+import { useWalletClient } from 'wagmi';
+import { useTransactionStore } from "~~/services/store/transactionStore";
 
 export const TransactionRow = ({ tx }: { tx: TransactionType }) => {
     const { writeContractAsync: writeMetaMultisigAsync } = useScaffoldWriteContract("MetaMultisigWallet");
     const { data: walletClient } = useWalletClient();
     // const addSignature = useTransactionStore(state => state.addSignature);
-    // const setExecuted = useTransactionStore(state => state.setExecuted);
+    const updateTransaction = useTransactionStore(state => state.updateTransaction);
 
     const handleSign = async (tx: TransactionType) => {
-        // const signature: any = await walletClient?.signMessage({
-        //     message: { raw: tx.callData as `0x${string}` }
-        // });
+        const signature: any = await walletClient?.signMessage({
+            message: { raw: tx.callData as `0x${string}` }
+        });
 
-        // // tx.signatures.push(signature);
-        // console.log(signature)
-        // editTransaction(tx);
+        tx.signatures.push(signature);
+        updateTransaction(tx.id, tx);
     }
 
     const handleExec = async (tx: TransactionType) => {

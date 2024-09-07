@@ -40,7 +40,7 @@ export const useTransactionStore = create<TransactionState>((set) => ({
     },
 
     updateTransaction: async (id: number, updatedData: Partial<TransactionType>) => {
-        const response = await fetch(`/api/transactions/${id}`, {
+        const response = await fetch(`/api/transactions`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

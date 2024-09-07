@@ -11,7 +11,7 @@ export type TransactionType = {
     to: `0x${string}`,
     arg: bigint,
     callData?: `0x${string}`,
-    signatures?: `0x${string}`[],
+    signatures: `0x${string}`[],
     requiredSigners: number,
     executed: boolean
 }
@@ -44,6 +44,7 @@ export const CreateTransaction: NextPage = () => {
             to: signer as `0x${string}`,
             arg: BigInt(1),
             requiredSigners: Number(newReqSigners),
+            signatures: [],
             executed: false
         }
 
@@ -54,7 +55,7 @@ export const CreateTransaction: NextPage = () => {
     }
 
     return (
-        <div className="flex flex-col flex-1 items-center my-20 gap-8">
+        <div className="flex flex-col flex-1 items-center gap-8">
             <div className="flex items-center flex-col flex-grow w-full max-w-lg">
                 <div className="flex flex-col bg-base-100 shadow-lg shadow-secondary border-8 border-secondary rounded-xl w-full p-6">
                     <div>

@@ -17,8 +17,14 @@ const Transactions: NextPage = () => {
                     <br />Then it will be executed automatically
                 </p>
             </div>
-            <TransactionsList />
-            <CreateTransaction />
+            <div className="grid grid-cols-2 gap-4">
+                <div className="p-12">
+                    <TransactionsList />
+                </div>
+                <div className="p-12">
+                    <CreateTransaction />
+                </div>
+            </div>
         </>
     );
 };
