@@ -47,7 +47,7 @@ export const TransactionRow = ({ tx }: { tx: TransactionType }) => {
             <td className="text-center">{tx.signatures?.length || 0} / {tx.requiredSigners}</td>
             <td className="flex flex-col md:flex-row gap-2">
                 <button className={`btn btn-secondary btn-sm ${hasAlreadySigned(tx, sender) ? 'btn-disabled' : ''}`} onClick={() => handleSign(tx)}>
-                    Sign
+                {hasAlreadySigned(tx, sender) ? 'Signed 👌 ' : 'Sign'}
                 </button>
                 <button
                     className={`btn btn-secondary btn-sm ${tx.signatures?.length === tx.requiredSigners ? '' : 'btn-disabled'}`}

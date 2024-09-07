@@ -1,12 +1,9 @@
-import { TransactionType } from "~~/app/transactions/_components"
+import { TransactionType } from "~~/types/transaction";
 
 let nextId = 0;
 let transactions: TransactionType[] = [];
 
 export async function GET(request: Request) {
-    transactions.map(tx => {
-
-    })
     return Response.json(transactions)
 }
 
@@ -22,12 +19,10 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
 
     const body = await request.json();
-    console.log(body)
     const updatedTransaction = body as TransactionType;
-
-    transactions.map(tx => {
+    transactions = transactions.map(tx =>
         tx.id === updatedTransaction.id ? { ...tx, ...updatedTransaction } : tx
-    });
+    );
 
     return Response.json(updatedTransaction)
 }
