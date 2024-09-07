@@ -4,7 +4,12 @@ export type TransactionType = {
     to: `0x${string}`,
     arg: bigint,
     callData?: `0x${string}`,
-    signatures: `0x${string}`[],
+    signatures: Signature[],
     requiredSigners: number,
     executed: boolean
+}
+
+export type Signature = {
+    address: `0x${string}`,
+    signature: `0x${string}`
 }

@@ -11,7 +11,7 @@ export const TransactionsList: NextPage = () => {
     useEffect(() => {
         fetchTransactions();
     }, [fetchTransactions]);
-
+console.log(transactions)
     return (
         <div className="col-start-1 col-span-6 grid grid-cols-1 gap-8 lg:gap-10">
             <div className=" col-span-1 lg:col-span-2 flex flex-col gap-6">

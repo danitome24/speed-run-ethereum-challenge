@@ -1,21 +1,30 @@
-import { TransactionType } from "~~/types/transaction";
+import { Signature, TransactionType } from "~~/types/transaction";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
-import { useWalletClient } from 'wagmi';
+import { useAccount, useWalletClient } from 'wagmi';
 import { useTransactionStore } from "~~/services/store/transactionStore";
 
 export const TransactionRow = ({ tx }: { tx: TransactionType }) => {
     const { writeContractAsync: writeMetaMultisigAsync } = useScaffoldWriteContract("MetaMultisigWallet");
     const { data: walletClient } = useWalletClient();
+    const { address: sender } = useAccount();
+    if (sender == undefined) {
+        return;
+    }
     // const addSignature = useTransactionStore(state => state.addSignature);
     const updateTransaction = useTransactionStore(state => state.updateTransaction);
 
     const handleSign = async (tx: TransactionType) => {
-        const signature: any = await walletClient?.signMessage({
+        const sign: any = await walletClient?.signMessage({
             message: { raw: tx.callData as `0x${string}` }
         });
+        const signatureObject: Signature = {
+            signature: sign,
+            address: sender
+        }
 
-        tx.signatures.push(signature);
+        tx.signatures.push(signatureObject);
         updateTransaction(tx.id, tx);
+
     }
 
     const handleExec = async (tx: TransactionType) => {
@@ -27,16 +36,25 @@ export const TransactionRow = ({ tx }: { tx: TransactionType }) => {
         // setExecuted(tx.id);
     }
 
+    const hasAlreadySigned = (transaction: TransactionType, address: `0x${string}`): boolean => {
+        return transaction.signatures.some(signature => signature.address === address);
+    }
+
     return (
         <tr>
             <td className="text-center">{tx.id}</td>
             <td className="text-center">{tx.function}</td>
-            <td className="text-center"> {tx.signatures?.length || 0} / {tx.requiredSigners}</td>
-            <td>
-                <button className="btn btn-secondary btn-sm self-end md:self-start" onClick={() => handleSign(tx)}>Sign</button>
-                {tx.signatures?.length === tx.requiredSigners ?
-                    <button className="btn btn-secondary btn-sm self-end md:self-start" onClick={() => handleExec(tx)}>Execute</button>
-                    : <button className="btn btn-secondary btn-sm self-end md:self-start btn-disabled" onClick={() => handleExec(tx)}>Execute</button>}
+            <td className="text-center">{tx.signatures?.length || 0} / {tx.requiredSigners}</td>
+            <td className="flex flex-col md:flex-row gap-2">
+                <button className={`btn btn-secondary btn-sm ${hasAlreadySigned(tx, sender) ? 'btn-disabled' : ''}`} onClick={() => handleSign(tx)}>
+                    Sign
+                </button>
+                <button
+                    className={`btn btn-secondary btn-sm ${tx.signatures?.length === tx.requiredSigners ? '' : 'btn-disabled'}`}
+                    onClick={() => handleExec(tx)}
+                    disabled={tx.signatures?.length !== tx.requiredSigners}>
+                    Execute
+                </button>
             </td>
         </tr>
     )
