@@ -4,17 +4,7 @@ import { type FC, useEffect, useState } from "react";
 import { AddressInput, EtherInput, InputBase, IntegerInput } from "~~/components/scaffold-eth";
 import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { useTransactionStore } from "~~/services/store/transactionStore";
-
-export type TransactionType = {
-    id: number,
-    function: string,
-    to: `0x${string}`,
-    arg: bigint,
-    callData?: `0x${string}`,
-    signatures: `0x${string}`[],
-    requiredSigners: number,
-    executed: boolean
-}
+import { TransactionType } from "~~/types/transaction";
 
 export const CreateTransaction: NextPage = () => {
     const METHODS = ["addSigner", "removeSigner", "transferFunds"];

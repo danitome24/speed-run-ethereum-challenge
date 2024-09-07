@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { TransactionType } from '~~/app/transactions/_components';
+import { TransactionType } from "~~/types/transaction";
 
 type TransactionState = {
     transactions: TransactionType[];

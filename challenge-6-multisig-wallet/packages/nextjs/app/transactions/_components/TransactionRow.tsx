@@ -1,4 +1,4 @@
-import { TransactionType } from "./CreateTransaction";
+import { TransactionType } from "~~/types/transaction";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useWalletClient } from 'wagmi';
 import { useTransactionStore } from "~~/services/store/transactionStore";
