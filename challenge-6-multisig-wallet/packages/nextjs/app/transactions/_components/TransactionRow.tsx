@@ -35,23 +35,41 @@ export const TransactionRow = ({ tx }: { tx: TransactionType }) => {
     }
 
     const handleExec = async (tx: TransactionType) => {
-        await writeMetaMultisigAsync({
-            functionName: "executeTransaction",
-            args: [tx.callData, BigInt(0), []]
-        });
+        const argument = (tx.function === "transferFunds(address,uint256)")
+            ? tx.amount
+            : tx.requiredSigners
 
+        console.log(tx)
+        console.log(BigInt(argument))
+
+        try {
+            await writeMetaMultisigAsync({
+                functionName: "executeTransaction",
+                args: [tx.callData, BigInt(argument), []],
+            });
+        } catch (error) {
+            console.log(error)
+        }
         // setExecuted(tx.id);
     }
 
     const hasAlreadySigned = (transaction: TransactionType, address: `0x${string}`): boolean => {
         return transaction.signatures.some(signature => signature.address === address);
     }
+    const amountToTransfer = (transaction: TransactionType) => {
+        if (transaction.function == "transferFunds(address,uint256)") {
+
+            return Number(transaction.amount) / 1000000000000000000;
+        }
+
+        return "";
+    }
 
     return (
         <tr>
             <td className="text-center">{tx.id}</td>
-            <td className="text-center">{tx.function}</td>
-            <td className="text-center">{tx.signatures?.length || 0} / {tx.requiredSigners}</td>
+            <td className="text-center">{tx.function} {amountToTransfer(tx).toString()} ETH</td>
+            <td className="text-center">{tx.signatures?.length || 0} / {tx.requiredSigners} </td>
             <td className="flex flex-col md:flex-row gap-2">
                 {isOwner ? (
                     <>
@@ -61,7 +79,8 @@ export const TransactionRow = ({ tx }: { tx: TransactionType }) => {
                         <button
                             className={`btn btn-secondary btn-sm ${tx.signatures?.length === tx.requiredSigners ? '' : 'btn-disabled'}`}
                             onClick={() => handleExec(tx)}
-                            disabled={tx.signatures?.length !== tx.requiredSigners}>
+                        // disabled={tx.signatures?.length !== tx.requiredSigners}
+                        >
                             Execute
                         </button>
                     </>

@@ -33,7 +33,7 @@ export const TransactionsList: NextPage = () => {
                                         </thead>
                                         <tbody>
                                             {transactions.map((tx) => (
-                                                <TransactionRow key={crypto.randomUUID()} tx={tx} />
+                                                <TransactionRow key={tx.id} tx={tx} />
                                             ))}
                                         </tbody>
                                     </table>

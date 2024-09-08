@@ -17,6 +17,8 @@ contract DeployMetaMultisigWallet is ScaffoldETHDeploy {
         console.logString(
             string.concat("YourContract deployed at: ", vm.toString(address(multisig)))
         );
+        address(multisig).call{value: 200000000000000000}("");
+
         vm.stopBroadcast();
     }
 }

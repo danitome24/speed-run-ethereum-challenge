@@ -1,6 +1,8 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import "forge-std/console.sol";
+
 contract MetaMultisigWallet {
     //==============
     //==== Errors
@@ -14,7 +16,7 @@ contract MetaMultisigWallet {
     //==== Events
     //===============
     event SignerAdded(address indexed who, uint256 newReqSigners);
-    event SignerRemoved(address indexed who , uint256 newReqSigners);
+    event SignerRemoved(address indexed who, uint256 newReqSigners);
 
     //==============
     //==== State variables
@@ -53,6 +55,8 @@ contract MetaMultisigWallet {
     //==============
     //==== External Functions
     //===============
+
+    receive() external payable { }
 
     /**
      * Create a tx request to add a new signer.
@@ -98,6 +102,7 @@ contract MetaMultisigWallet {
         if (address(this).balance <= amount) {
             revert MetaMultisigWallet__NotEnoughBalance();
         }
+
         (bool success,) = to.call{ value: amount }("");
         if (!success) {
             revert MetaMultisigWallet__TransferError();
@@ -110,6 +115,8 @@ contract MetaMultisigWallet {
     // =====> 0x815c4c880000000000000000000000005db21c9aa77fc9393b8da1185c8deeb7f31ec6640000000000000000000000000000000000000000000000000000000000000001
 
     function executeTransaction(bytes memory callData, uint256 amount, bytes[] memory signatures) external {
+        // TODO: Check signatures if are valid.
+
         (bool success,) = address(this).call(callData);
         if (!success) revert MetaMultisigWallet__TransferError();
         s_nonce++;

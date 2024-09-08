@@ -5,6 +5,7 @@ import { AddressInput, EtherInput, InputBase, IntegerInput } from "~~/components
 import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { useTransactionStore } from "~~/services/store/transactionStore";
 import { TransactionType } from "~~/types/transaction";
+import { parseEther } from 'viem';
 
 export const CreateTransaction: NextPage = () => {
     const METHODS = ["addSigner", "removeSigner", "transferFunds"];
@@ -15,10 +16,14 @@ export const CreateTransaction: NextPage = () => {
         contractName: "MetaMultisigWallet",
         functionName: "s_nonce"
     });
+    const { data: initialRequiredSigners } = useScaffoldReadContract({
+        contractName: "MetaMultisigWallet",
+        functionName: "s_numRequiredSigners"
+    });
 
 
     const [funcSelected, setFuncSelected] = useState("addSigner");
-    const [ethValue, setEthValue] = useState("");
+    const [ethValue, setEthValue] = useState<string | bigint>("");
     const [newReqSigners, setNewReqSigners] = useState(0);
     const [callData, setCallData] = useState<any | null>("");
     const [signer, setSigner] = useState("");
@@ -32,13 +37,15 @@ export const CreateTransaction: NextPage = () => {
             id: 0,
             function: funcSelected + "(address,uint256)",
             to: signer as `0x${string}`,
-            arg: BigInt(1),
-            requiredSigners: Number(newReqSigners),
+            amount: (funcSelected == "addSigner" || funcSelected == "removeSigner") ? BigInt(0) : ethValue,
+            requiredSigners: (newReqSigners == 0) ? Number(initialRequiredSigners) : newReqSigners,
             signatures: [],
             executed: false
         }
 
-        newTx.callData = await multisigWalletContract?.read.getHash([newTx.function, newTx.to, newTx.arg]);
+        const argument = (funcSelected == "transferFunds") ? newTx.amount : BigInt(newTx.requiredSigners);
+
+        newTx.callData = await multisigWalletContract?.read.getHash([newTx.function, newTx.to, argument]);
         setCallData(newTx.callData);
 
         transactionStore.addTransaction(newTx);
@@ -83,7 +90,7 @@ export const CreateTransaction: NextPage = () => {
                         />
 
                         {funcSelected === "transferFunds" && (
-                            <EtherInput
+                            <IntegerInput
                                 value={ethValue}
                                 onChange={val => {
                                     setEthValue(val);

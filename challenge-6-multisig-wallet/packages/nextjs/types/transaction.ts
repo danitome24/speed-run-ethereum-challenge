@@ -2,7 +2,7 @@ export type TransactionType = {
     id: number,
     function: string,
     to: `0x${string}`,
-    arg: bigint,
+    amount: bigint,
     callData?: `0x${string}`,
     signatures: Signature[],
     requiredSigners: number,

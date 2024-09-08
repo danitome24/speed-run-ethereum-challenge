@@ -16,7 +16,7 @@ export const useTransactionStore = create<TransactionState>((set) => ({
         const data: any[] = await response.json();
         const transactions = data.map((transaction) => ({
             ...transaction,
-            arg: BigInt(transaction.arg),
+            requiredSigners: transaction.requiredSigners,
         }));
         set({ transactions });
     },
@@ -29,7 +29,6 @@ export const useTransactionStore = create<TransactionState>((set) => ({
             },
             body: JSON.stringify(
                 transaction,
-                // stringifying bigint
                 (key, value) => (typeof value === "bigint" ? value.toString() : value),
             ),
         });
