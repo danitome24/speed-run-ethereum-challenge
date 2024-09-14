@@ -2,14 +2,16 @@ import { create } from 'zustand';
 import { TransactionType } from "~~/types/transaction";
 
 type TransactionState = {
+    nextId: number;
     transactions: TransactionType[];
     fetchTransactions: () => Promise<void>;
     addTransaction: (transaction: TransactionType) => Promise<void>;
     updateTransaction: (id: number, updatedData: Partial<TransactionType>) => Promise<void>;
 };
 
-export const useTransactionStore = create<TransactionState>((set) => ({
+export const useTransactionStore = create<TransactionState>((set, get) => ({
     transactions: [],
+    nextId: 1,
 
     fetchTransactions: async () => {
         const response = await fetch('/api/transactions');
@@ -22,6 +24,8 @@ export const useTransactionStore = create<TransactionState>((set) => ({
     },
 
     addTransaction: async (transaction: TransactionType) => {
+        const id = get().nextId;
+        const transactionWithId = { ...transaction, id };
         const response = await fetch('/api/transactions', {
             method: 'POST',
             headers: {
@@ -35,6 +39,7 @@ export const useTransactionStore = create<TransactionState>((set) => ({
         const newTransaction = await response.json();
         set((state) => ({
             transactions: [...state.transactions, newTransaction],
+            nextId: state.nextId + 1,
         }));
     },
 

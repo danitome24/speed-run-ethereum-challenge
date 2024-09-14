@@ -127,9 +127,9 @@ contract MetaMultisigWallet {
         bytes32 messageHash = keccak256(callData);
         bytes32 ethMessageHash = messageHash.toEthSignedMessageHash();
         address[] memory signersChecked = new address[](signatures.length);
-        console.log(signatures.length);
+
         for (uint256 i = 0; i < signatures.length; i++) {
-            address signer = ECDSA.recover(ethMessageHash, signatures[i]);
+            address signer = _getSignerFromMessage(ethMessageHash, signatures[i]);
             if (!isOwnerActive(signer)) {
                 revert MetaMultisigWallet__SignerNotValid(signer);
             }
@@ -162,6 +162,10 @@ contract MetaMultisigWallet {
 
     function getHash(string memory funcName, address user, uint256 argument) external pure returns (bytes memory) {
         return abi.encodeWithSignature(funcName, user, argument);
+    }
+
+    function _getSignerFromMessage(bytes32 ethMessageHash, bytes memory signature) public pure returns (address) {
+        return ECDSA.recover(ethMessageHash, signature);
     }
 
     /**

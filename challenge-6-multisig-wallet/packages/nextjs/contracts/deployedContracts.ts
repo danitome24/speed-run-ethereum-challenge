@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     MetaMultisigWallet: {
-      address: "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+      address: "0x0165878a594ca255338adfa4d48449f69242eb8f",
       abi: [
         {
           type: "constructor",
@@ -28,6 +28,30 @@ const deployedContracts = {
         {
           type: "receive",
           stateMutability: "payable",
+        },
+        {
+          type: "function",
+          name: "_getSignerFromMessage",
+          inputs: [
+            {
+              name: "ethMessageHash",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+            {
+              name: "signature",
+              type: "bytes",
+              internalType: "bytes",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          stateMutability: "pure",
         },
         {
           type: "function",
@@ -55,11 +79,6 @@ const deployedContracts = {
               name: "callData",
               type: "bytes",
               internalType: "bytes",
-            },
-            {
-              name: "amount",
-              type: "uint256",
-              internalType: "uint256",
             },
             {
               name: "signatures",
@@ -251,8 +270,59 @@ const deployedContracts = {
           anonymous: false,
         },
         {
+          type: "event",
+          name: "TransferSent",
+          inputs: [
+            {
+              name: "who",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "amount",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "error",
+          name: "ECDSAInvalidSignature",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "ECDSAInvalidSignatureLength",
+          inputs: [
+            {
+              name: "length",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "ECDSAInvalidSignatureS",
+          inputs: [
+            {
+              name: "s",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+        },
+        {
           type: "error",
           name: "MetaMultisigWallet__AmountCannotBeZero",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "MetaMultisigWallet__MoreSignersNeeded",
           inputs: [],
         },
         {
@@ -264,6 +334,27 @@ const deployedContracts = {
           type: "error",
           name: "MetaMultisigWallet__NotEnoughBalance",
           inputs: [],
+        },
+        {
+          type: "error",
+          name: "MetaMultisigWallet__OnlyCallableBySelfContract",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "MetaMultisigWallet__SignerAlreadySigned",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "MetaMultisigWallet__SignerNotValid",
+          inputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
         },
         {
           type: "error",

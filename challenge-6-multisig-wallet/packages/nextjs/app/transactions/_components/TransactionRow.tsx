@@ -24,6 +24,7 @@ export const TransactionRow = ({ tx }: { tx: TransactionType }) => {
         const sign: any = await walletClient?.signMessage({
             message: { raw: tx.callData as `0x${string}` }
         });
+
         const signatureObject: Signature = {
             signature: sign,
             address: sender
@@ -39,13 +40,13 @@ export const TransactionRow = ({ tx }: { tx: TransactionType }) => {
             ? tx.amount
             : tx.requiredSigners
 
-        console.log(tx)
-        console.log(BigInt(argument))
+        console.log(tx.callData)
+        console.log(tx.signatures.map(sig => sig.signature))
 
         try {
             await writeMetaMultisigAsync({
                 functionName: "executeTransaction",
-                args: [tx.callData, BigInt(argument), []],
+                args: [tx.callData, tx.signatures.map(sig => sig.signature)],
             });
         } catch (error) {
             console.log(error)
