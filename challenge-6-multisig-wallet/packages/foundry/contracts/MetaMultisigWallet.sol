@@ -2,8 +2,12 @@
 pragma solidity ^0.8.19;
 
 import "forge-std/console.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 contract MetaMultisigWallet {
+    using MessageHashUtils for bytes32;
+
     //==============
     //==== Errors
     //===============
@@ -11,12 +15,17 @@ contract MetaMultisigWallet {
     error MetaMultisigWallet__AmountCannotBeZero();
     error MetaMultisigWallet__TransferError();
     error MetaMultisigWallet__NotEnoughBalance();
+    error MetaMultisigWallet__SignerNotValid(address);
+    error MetaMultisigWallet__MoreSignersNeeded();
+    error MetaMultisigWallet__OnlyCallableBySelfContract();
+    error MetaMultisigWallet__SignerAlreadySigned();
 
     //==============
     //==== Events
     //===============
     event SignerAdded(address indexed who, uint256 newReqSigners);
     event SignerRemoved(address indexed who, uint256 newReqSigners);
+    event TransferSent(address indexed who, uint256 amount);
 
     //==============
     //==== State variables
@@ -25,6 +34,7 @@ contract MetaMultisigWallet {
     uint256 public s_numRequiredSigners;
     uint256 public s_ownersLength;
     uint256 public s_nonce;
+    mapping(address signers => bool hasSigned) private s_currentSigners;
 
     //==============
     //==== Structs
@@ -34,7 +44,9 @@ contract MetaMultisigWallet {
     //==== Modifiers
     //===============
     modifier onlySelf() {
-        require(msg.sender == address(this), "Only can be executed by self contract");
+        if (msg.sender != address(this)) {
+            revert MetaMultisigWallet__OnlyCallableBySelfContract();
+        }
         _;
     }
 
@@ -63,7 +75,7 @@ contract MetaMultisigWallet {
      * @param who New signer in.
      * @param newRequiredSigners New required signers to approve a tx.
      */
-    function addSigner(address who, uint256 newRequiredSigners) public {
+    function addSigner(address who, uint256 newRequiredSigners) public onlySelf {
         if (who == address(0)) {
             revert MetaMultisigWallet__NoZeroAddress();
         }
@@ -78,7 +90,7 @@ contract MetaMultisigWallet {
      * @param who New signer in.
      * @param newRequiredSigners New required signers to approve a tx.
      */
-    function removeSigner(address who, uint256 newRequiredSigners) public {
+    function removeSigner(address who, uint256 newRequiredSigners) public onlySelf {
         if (who == address(0)) {
             revert MetaMultisigWallet__NoZeroAddress();
         }
@@ -92,7 +104,7 @@ contract MetaMultisigWallet {
      * @param to Address who will receive funds.
      * @param amount Amount sent.
      */
-    function transferFunds(address to, uint256 amount) public {
+    function transferFunds(address to, uint256 amount) public onlySelf {
         if (to == address(0)) {
             revert MetaMultisigWallet__NoZeroAddress();
         }
@@ -107,19 +119,45 @@ contract MetaMultisigWallet {
         if (!success) {
             revert MetaMultisigWallet__TransferError();
         }
+        emit TransferSent(to, amount);
     }
 
-    //  addSigner(address,uint256)
-    //  0x5DB21C9aa77fC9393B8da1185C8dEEB7F31EC664
-    //  1
-    // =====> 0x815c4c880000000000000000000000005db21c9aa77fc9393b8da1185c8deeb7f31ec6640000000000000000000000000000000000000000000000000000000000000001
+    function executeTransaction(bytes memory callData, bytes[] memory signatures) external {
+        uint256 validSignatureCount = 0;
+        bytes32 messageHash = keccak256(callData);
+        bytes32 ethMessageHash = messageHash.toEthSignedMessageHash();
+        address[] memory signersChecked = new address[](signatures.length);
+        console.log(signatures.length);
+        for (uint256 i = 0; i < signatures.length; i++) {
+            address signer = ECDSA.recover(ethMessageHash, signatures[i]);
+            if (!isOwnerActive(signer)) {
+                revert MetaMultisigWallet__SignerNotValid(signer);
+            }
+            bool isSignatureRepeated = _checkIfSignatureIsRepeated(signersChecked, signer);
+            if (isSignatureRepeated) {
+                revert MetaMultisigWallet__SignerAlreadySigned();
+            }
+            signersChecked[validSignatureCount] = signer;
+            validSignatureCount++;
+        }
 
-    function executeTransaction(bytes memory callData, uint256 amount, bytes[] memory signatures) external {
-        // TODO: Check signatures if are valid.
+        if (validSignatureCount < s_numRequiredSigners) {
+            revert MetaMultisigWallet__MoreSignersNeeded();
+        }
 
         (bool success,) = address(this).call(callData);
         if (!success) revert MetaMultisigWallet__TransferError();
         s_nonce++;
+    }
+
+    function _checkIfSignatureIsRepeated(address[] memory signers, address signerToCheck) private pure returns (bool) {
+        for (uint256 i = 0; i < signers.length; i++) {
+            if (signers[i] != address(0) && signerToCheck == signers[i]) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     function getHash(string memory funcName, address user, uint256 argument) external pure returns (bytes memory) {
@@ -130,7 +168,7 @@ contract MetaMultisigWallet {
      * Check if owner is active or not.
      * @param owner Owner address
      */
-    function isOwnerActive(address owner) external view returns (bool) {
+    function isOwnerActive(address owner) public view returns (bool) {
         return s_owners[owner];
     }
 }

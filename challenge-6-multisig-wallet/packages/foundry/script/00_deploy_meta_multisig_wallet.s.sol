@@ -14,10 +14,11 @@ contract DeployMetaMultisigWallet is ScaffoldETHDeploy {
         uint256 requiredSigners = 1;
 
         MetaMultisigWallet multisig = new MetaMultisigWallet(owners, requiredSigners);
-        console.logString(
-            string.concat("YourContract deployed at: ", vm.toString(address(multisig)))
-        );
-        address(multisig).call{value: 200000000000000000}("");
+        console.logString(string.concat("YourContract deployed at: ", vm.toString(address(multisig))));
+        (bool success,) = address(multisig).call{ value: 200000000000000000 }("");
+        if (!success) {
+            revert("DEPLOY: Error on transfer balance");
+        }
 
         vm.stopBroadcast();
     }
