@@ -17,7 +17,6 @@ export const TransactionRow = ({ tx }: { tx: TransactionType }) => {
         functionName: "isOwnerActive",
         args: [sender],
     });
-    // const addSignature = useTransactionStore(state => state.addSignature);
     const updateTransaction = useTransactionStore(state => state.updateTransaction);
 
     const handleSign = async (tx: TransactionType) => {
@@ -36,13 +35,6 @@ export const TransactionRow = ({ tx }: { tx: TransactionType }) => {
     }
 
     const handleExec = async (tx: TransactionType) => {
-        const argument = (tx.function === "transferFunds(address,uint256)")
-            ? tx.amount
-            : tx.requiredSigners
-
-        console.log(tx.callData)
-        console.log(tx.signatures.map(sig => sig.signature))
-
         try {
             await writeMetaMultisigAsync({
                 functionName: "executeTransaction",
@@ -51,7 +43,6 @@ export const TransactionRow = ({ tx }: { tx: TransactionType }) => {
         } catch (error) {
             console.log(error)
         }
-        // setExecuted(tx.id);
     }
 
     const hasAlreadySigned = (transaction: TransactionType, address: `0x${string}`): boolean => {
@@ -80,7 +71,6 @@ export const TransactionRow = ({ tx }: { tx: TransactionType }) => {
                         <button
                             className={`btn btn-secondary btn-sm ${tx.signatures?.length === tx.requiredSigners ? '' : 'btn-disabled'}`}
                             onClick={() => handleExec(tx)}
-                        // disabled={tx.signatures?.length !== tx.requiredSigners}
                         >
                             Execute
                         </button>
